@@ -27,19 +27,19 @@ if (leadsFromLocalStorage) {
   render(myLeads);
 }
 
-// Listen for clicks on tabBtn
 tabBtn.addEventListener("click", function () {
-  // Grab the URL of the current tab!
-  chrome.tabs.query({ active: true, currentWindow: true }, function (tabs) {
-    // since only one tab should be active and in the current window at once
-    // the return variable should only have one entry
-    myLeads.push(tabs[0].url);
-
-    // Save the myLeads array to localStorage after transformed it into a string
-    localStorage.setItem("myLeads", JSON.stringify(myLeads));
-    // Call render() with myLeads as argument
-    render(myLeads);
-  });
+  // Check if the 'chrome' object is available (i.e., running as an extension)
+  if (typeof chrome !== "undefined" && chrome.tabs) {
+    // This part runs in Chrome extension
+    chrome.tabs.query({ active: true, currentWindow: true }, function (tabs) {
+      myLeads.push(tabs[0].url);
+      localStorage.setItem("myLeads", JSON.stringify(myLeads));
+      render(myLeads);
+    });
+  } else {
+    // This part runs in a regular web app, where we can't access Chrome tabs
+    alert("This feature is only available in the Chrome extension.");
+  }
 });
 
 // Create a function render() that update the unordered list manipulating DOM with innerHTML
